@@ -1,3 +1,4 @@
+import * as FileSystem from 'expo-file-system/legacy';
 import { supabase } from './supabase';
 import type { Gender, LookingFor, DogSize } from './onboarding';
 
@@ -12,6 +13,29 @@ type Input = {
   photos: { uri: string; isDog: boolean }[];
   dog: { name: string; breed: string; size: DogSize; bio: string };
 };
+
+// `fetch(file://...).blob()` on React Native uploads a 0-byte object to
+// Supabase Storage. We read the file as base64 and convert to a Uint8Array
+// before uploading.
+function base64ToUint8Array(base64: string): Uint8Array {
+  const binary = globalThis.atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function uploadPhoto(uri: string, path: string): Promise<void> {
+  const base64 = await FileSystem.readAsStringAsync(uri, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+  const bytes = base64ToUint8Array(base64);
+  const { error } = await supabase.storage
+    .from('profile-photos')
+    .upload(path, bytes, { contentType: 'image/jpeg', upsert: false });
+  if (error) throw error;
+}
 
 export async function createProfileAndUploads(input: Input) {
   const { data: { user } } = await supabase.auth.getUser();
@@ -42,12 +66,7 @@ export async function createProfileAndUploads(input: Input) {
     const photo = input.photos[i];
     const filename = `${Date.now()}-${i}.jpg`;
     const path = `${user.id}/${filename}`;
-    const response = await fetch(photo.uri);
-    const blob = await response.blob();
-    const { error: uploadError } = await supabase.storage
-      .from('profile-photos')
-      .upload(path, blob, { contentType: 'image/jpeg', upsert: false });
-    if (uploadError) throw uploadError;
+    await uploadPhoto(photo.uri, path);
 
     const { error: photoRowError } = await supabase.from('photos').insert({
       profile_id: user.id,
