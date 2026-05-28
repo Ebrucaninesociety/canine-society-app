@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { View, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { fetchDeck, fetchPrimaryPhotoPath, recordSwipe, DeckProfile } from '../../lib/deck';
 import { signedPhotoUrl } from '../../lib/photos';
 import { SwipeCard } from '../../components/SwipeCard';
@@ -40,6 +40,14 @@ export default function Discover() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Refresh on return from /profile/[id] so a card we just decided on
+  // disappears from the stack.
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
 
   const onSwipe = async (dir: 'like' | 'pass' | 'superlike') => {
     const top = stack[0];
