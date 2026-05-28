@@ -2,12 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createBrowserClient } from '@supabase/ssr';
-
-const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
+import { supabaseBrowser } from '@/lib/supabase-browser';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,7 +15,7 @@ export default function LoginPage() {
   const sendCode = async () => {
     setBusy(true);
     setErr(null);
-    const { error } = await supabase.auth.signInWithOtp({ email: email.trim() });
+    const { error } = await supabaseBrowser().auth.signInWithOtp({ email: email.trim() });
     setBusy(false);
     if (error) {
       setErr(error.message);
@@ -32,7 +27,7 @@ export default function LoginPage() {
   const verify = async () => {
     setBusy(true);
     setErr(null);
-    const { error } = await supabase.auth.verifyOtp({
+    const { error } = await supabaseBrowser().auth.verifyOtp({
       email: email.trim(),
       token: code.trim(),
       type: 'email',
@@ -74,7 +69,7 @@ export default function LoginPage() {
       ) : (
         <>
           <p style={{ marginBottom: 24 }}>
-            We sent a six-digit code to <strong>{email}</strong>.
+            We sent a one-time code to <strong>{email}</strong>.
           </p>
           <label className="label" htmlFor="code">Code</label>
           <input
