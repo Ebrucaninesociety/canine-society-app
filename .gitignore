@@ -1,0 +1,41 @@
+node_modules/
+.expo/
+dist/
+web-build/
+.env
+.env.local
+.env.*.local
+
+# native
+ios/Pods/
+ios/build/
+ios/*.xcworkspace
+android/.gradle/
+android/build/
+android/app/build/
+android/app/release/
+
+# logs / OS
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# eas
+.eas/
+
+# signing
+*.keystore
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+GoogleService-Info.plist
+google-services.json
+
+# editors
+.idea/
+.vscode/
+*.swp
