@@ -7,6 +7,7 @@ import {
   TextInput,
   FlatList,
   Pressable,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -19,6 +20,8 @@ import {
 } from '../../lib/chat';
 import { useSession } from '../../lib/session';
 import { supabase } from '../../lib/supabase';
+import { blockUser } from '../../lib/block';
+import { unmatch } from '../../lib/match';
 import { Text } from '../../components/Text';
 import { HairlineRule } from '../../components/HairlineRule';
 import { colors, spacing, typography } from '../../design';
@@ -30,6 +33,7 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState('');
   const [otherName, setOtherName] = useState('');
+  const [otherId, setOtherId] = useState<string | null>(null);
   const listRef = useRef<FlatList<Message>>(null);
 
   useEffect(() => {
@@ -41,22 +45,21 @@ export default function Chat() {
       setMessages(initial);
       await markRead(matchId);
       unsub = subscribeMessages(matchId, (m) => {
-        // Skip own messages — already added optimistically by send().
         if (m.sender_id === me) return;
         setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]));
       });
-      // Resolve the other party's name for the header.
       const { data: match } = await supabase
         .from('matches')
         .select('profile_a_id, profile_b_id')
         .eq('id', matchId)
         .maybeSingle();
       if (!match) return;
-      const otherId = match.profile_a_id === me ? match.profile_b_id : match.profile_a_id;
+      const other = match.profile_a_id === me ? match.profile_b_id : match.profile_a_id;
+      setOtherId(other);
       const { data: profile } = await supabase
         .from('profiles')
         .select('display_name')
-        .eq('id', otherId)
+        .eq('id', other)
         .maybeSingle();
       if (profile) setOtherName(profile.display_name);
     })();
@@ -69,9 +72,6 @@ export default function Chat() {
     if (!matchId || !text.trim() || !session?.user) return;
     const body = text.trim();
     setText('');
-    // Optimistic insert — show the message immediately. If the DB write
-    // fails we drop it back. Realtime callback skips own messages so this
-    // does not duplicate.
     const tempId = `temp-${Date.now()}`;
     const optimistic: Message = {
       id: tempId,
@@ -87,8 +87,61 @@ export default function Chat() {
     } catch (e) {
       console.warn('send failed', e);
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
-      setText(body); // restore the input so the user can retry
+      setText(body);
     }
+  };
+
+  const openMenu = () => {
+    if (!otherId || !matchId) return;
+    Alert.alert(otherName || 'Options', undefined, [
+      { text: 'View profile', onPress: () => router.push(`/profile/${otherId}`) },
+      {
+        text: 'Unmatch',
+        style: 'destructive',
+        onPress: () => {
+          Alert.alert('Unmatch?', 'You will no longer see each other.', [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Unmatch',
+              style: 'destructive',
+              onPress: async () => {
+                try {
+                  await unmatch(matchId);
+                  router.replace('/(tabs)/matches');
+                } catch (e) {
+                  const err = e as { message?: string };
+                  Alert.alert('Could not unmatch', err.message ?? 'Try again');
+                }
+              },
+            },
+          ]);
+        },
+      },
+      { text: 'Report', onPress: () => router.push(`/report/${otherId}`) },
+      {
+        text: 'Block',
+        style: 'destructive',
+        onPress: () => {
+          Alert.alert(`Block ${otherName}?`, 'You will not see each other anywhere.', [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Block',
+              style: 'destructive',
+              onPress: async () => {
+                try {
+                  await blockUser(otherId);
+                  router.replace('/(tabs)/matches');
+                } catch (e) {
+                  const err = e as { message?: string };
+                  Alert.alert('Could not block', err.message ?? 'Try again');
+                }
+              },
+            },
+          ]);
+        },
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
   };
 
   return (
@@ -97,14 +150,17 @@ export default function Chat() {
         <Pressable onPress={() => router.back()}>
           <Text variant="label">← Back</Text>
         </Pressable>
-        <Text variant="title">{otherName}</Text>
-        <View style={{ width: 48 }} />
+        <Pressable onPress={() => otherId && router.push(`/profile/${otherId}`)}>
+          <Text variant="title">{otherName}</Text>
+        </Pressable>
+        <Pressable onPress={openMenu} style={{ paddingHorizontal: spacing.sm }}>
+          <Text variant="label">⋯</Text>
+        </Pressable>
       </View>
       <HairlineRule />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
         <FlatList
           ref={listRef}
