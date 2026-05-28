@@ -21,7 +21,6 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     const inOnboarding = segments[0] === 'onboarding';
     const inUnderReview = segments[0] === 'under-review';
     const inRejected = segments[0] === 'rejected';
-    const inTabs = segments[0] === '(tabs)';
 
     if (!session) {
       if (!inAuth) router.replace('/(auth)');
@@ -29,14 +28,19 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     }
     if (status === 'loading') return;
 
-    if (status === 'none' && !inOnboarding) {
-      router.replace('/onboarding');
-    } else if (status === 'pending' && !inUnderReview) {
-      router.replace('/under-review');
-    } else if (status === 'rejected' && !inRejected && !inOnboarding) {
-      router.replace('/rejected');
-    } else if (status === 'approved' && !inTabs) {
-      router.replace('/(tabs)/discover');
+    // Each branch only redirects AWAY from blocked routes for that status.
+    // Allowed in-app routes (tabs, /profile, /chat, /match, /settings) are
+    // implicit — the gate stays out of their way.
+    if (status === 'none') {
+      if (!inOnboarding) router.replace('/onboarding');
+    } else if (status === 'pending') {
+      if (!inUnderReview) router.replace('/under-review');
+    } else if (status === 'rejected') {
+      if (!inRejected && !inOnboarding) router.replace('/rejected');
+    } else if (status === 'approved') {
+      if (inAuth || inOnboarding || inUnderReview || inRejected) {
+        router.replace('/(tabs)/discover');
+      }
     }
   }, [session, loading, status, segments, router]);
 
