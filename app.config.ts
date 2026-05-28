@@ -8,8 +8,10 @@ const config: ExpoConfig = {
   orientation: 'portrait',
   userInterfaceStyle: 'light',
   newArchEnabled: true,
+  icon: './assets/icon.png',
   backgroundColor: '#F3E8D4',
   splash: {
+    image: './assets/splash.png',
     backgroundColor: '#F3E8D4',
     resizeMode: 'contain',
   },
@@ -22,8 +24,12 @@ const config: ExpoConfig = {
   android: {
     package: 'com.caninesociety.app',
     adaptiveIcon: {
+      foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#F3E8D4',
     },
+  },
+  web: {
+    favicon: './assets/favicon.png',
   },
   plugins: ['expo-router'],
   experiments: { typedRoutes: false },

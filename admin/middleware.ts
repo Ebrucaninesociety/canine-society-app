@@ -1,8 +1,17 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
+// Public routes that do NOT require moderator auth (Apple/Play store
+// reviewers need to view these without signing in).
+const PUBLIC_PREFIXES = ['/legal', '/login'];
+
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
+  const pathname = req.nextUrl.pathname;
+
+  if (PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) {
+    return res;
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,15 +31,10 @@ export async function middleware(req: NextRequest) {
   );
 
   const { data: { user } } = await supabase.auth.getUser();
-  const isLogin = req.nextUrl.pathname.startsWith('/login');
 
-  if (!user && !isLogin) {
+  if (!user) {
     return NextResponse.redirect(new URL('/login', req.url));
   }
-  if (user && isLogin) {
-    return NextResponse.redirect(new URL('/queue', req.url));
-  }
-
   return res;
 }
 

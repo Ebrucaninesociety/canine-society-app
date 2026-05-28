@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, StyleSheet, Image, Pressable, ScrollView } from 'react-native';
+import { View, StyleSheet, Image, Pressable, ScrollView, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
@@ -9,6 +9,11 @@ import { colors, spacing } from '../../design';
 import { useMe } from '../../lib/me';
 import { signedPhotoUrl } from '../../lib/photos';
 import { signOut } from '../../lib/auth';
+
+// Replace with the production URL of the admin web (Vercel deploy of admin/).
+// Until you have one, the in-app links 404. They are only required for
+// App Store / Play Store submission.
+const LEGAL_BASE = 'https://canine-society.com';
 
 function ageOf(birthdate: string): number {
   return Math.floor((Date.now() - new Date(birthdate).getTime()) / (1000 * 60 * 60 * 24 * 365.25));
@@ -93,7 +98,11 @@ export default function Society() {
             Profile
           </Text>
           <HairlineRule />
+          <Row label="Edit profile" onPress={() => router.push('/edit-profile')} />
+          <HairlineRule />
           <Row label="Edit photos" onPress={() => router.push('/edit-photos')} />
+          <HairlineRule />
+          <Row label="Edit dog" onPress={() => router.push('/edit-dog')} />
           <HairlineRule />
         </View>
 
@@ -103,6 +112,17 @@ export default function Society() {
           </Text>
           <HairlineRule />
           <Row label="Blocked members" onPress={() => router.push('/settings/blocked')} />
+          <HairlineRule />
+        </View>
+
+        <View style={styles.section}>
+          <Text variant="label" style={{ paddingHorizontal: spacing.md, marginBottom: spacing.xs }}>
+            Legal
+          </Text>
+          <HairlineRule />
+          <Row label="Privacy policy" onPress={() => Linking.openURL(`${LEGAL_BASE}/legal/privacy`)} />
+          <HairlineRule />
+          <Row label="Terms of use" onPress={() => Linking.openURL(`${LEGAL_BASE}/legal/terms`)} />
           <HairlineRule />
         </View>
 
