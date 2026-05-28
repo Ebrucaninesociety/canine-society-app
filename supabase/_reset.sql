@@ -37,5 +37,8 @@ DROP POLICY IF EXISTS "users upload own photos" ON storage.objects;
 DROP POLICY IF EXISTS "users read photos of visible profiles" ON storage.objects;
 DROP POLICY IF EXISTS "users delete own photos" ON storage.objects;
 
--- Bucket (and its objects via cascade)
-DELETE FROM storage.buckets WHERE id = 'profile-photos';
+-- Bucket: Supabase blocks direct DELETE on storage.buckets.
+-- If you need to remove the profile-photos bucket, do it from the
+-- dashboard: Storage -> profile-photos -> "..." menu -> Delete bucket.
+-- The bundle's bucket creation uses ON CONFLICT DO NOTHING so a leftover
+-- bucket does not block re-applying the bundle.
