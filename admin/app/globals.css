@@ -1,0 +1,103 @@
+:root {
+  --color-deep-ocean: #172451;
+  --color-water: #D7EBFF;
+  --color-sand: #F3E8D4;
+  --color-desert: #D9AF83;
+  --color-mud: #492703;
+  --color-hairline: rgba(23, 36, 81, 0.1);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-body, system-ui), sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display, Georgia), serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+button {
+  font-family: var(--font-body), sans-serif;
+  cursor: pointer;
+}
+
+.label {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-family: var(--font-body), sans-serif;
+}
+
+.btn-primary {
+  background: var(--color-deep-ocean);
+  color: var(--color-sand);
+  border: none;
+  padding: 12px 32px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 500;
+  border-radius: 0;
+  font-family: var(--font-body), sans-serif;
+}
+.btn-primary:hover { background: var(--color-mud); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-deep-ocean);
+  border: 1px solid var(--color-deep-ocean);
+  padding: 12px 32px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 500;
+  border-radius: 0;
+  font-family: var(--font-body), sans-serif;
+}
+.btn-ghost:hover { background: var(--color-water); }
+
+.btn-danger {
+  background: var(--color-mud);
+  color: var(--color-sand);
+  border: none;
+  padding: 12px 32px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 500;
+  border-radius: 0;
+  font-family: var(--font-body), sans-serif;
+}
+
+input[type="email"], input[type="text"], textarea {
+  font-family: var(--font-body), sans-serif;
+  font-size: 16px;
+  color: var(--color-deep-ocean);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-deep-ocean);
+  padding: 8px 0;
+  width: 100%;
+  border-radius: 0;
+  outline: none;
+}
+input:focus, textarea:focus {
+  border-bottom: 2px solid var(--color-mud);
+  margin-bottom: -1px;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: var(--color-hairline);
+  margin: 32px 0;
+}

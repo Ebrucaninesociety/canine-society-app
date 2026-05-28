@@ -50,19 +50,19 @@ export default function EmailEntry() {
           <View style={{ height: spacing.sm }} />
           <Text variant="headline">Enter the code</Text>
           <View style={{ height: spacing.md }} />
-          <Text>We sent a six-digit code to {email}. It may take a minute to arrive.</Text>
+          <Text>We sent a one-time code to {email}. It may take a minute to arrive.</Text>
           <View style={{ height: spacing.md }} />
           <Input
-            placeholder="000000"
+            placeholder="00000000"
             keyboardType="number-pad"
             value={code}
             onChangeText={setCode}
-            maxLength={6}
+            maxLength={8}
             autoFocus
-            style={{ fontSize: 28, letterSpacing: 8, textAlign: 'center' }}
+            style={{ fontSize: 28, letterSpacing: 6, textAlign: 'center' }}
           />
           <View style={{ height: spacing.md }} />
-          <Button onPress={verify} disabled={busy || code.length !== 6}>
+          <Button onPress={verify} disabled={busy || code.length < 6}>
             {busy ? 'Verifying...' : 'Verify'}
           </Button>
           <View style={{ height: spacing.sm }} />
