@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, View, StyleSheet, Dimensions } from 'react-native';
+import { Animated, View, StyleSheet, Dimensions, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text } from './Text';
 import { colors } from '../design';
 
-// Mirrors the website's LoadingIntro: Deep Ocean full bleed,
-// "It's not your club." -> "It's your Canine Society." -> wordmark.
-// Shown once per install; skipped thereafter (cached in AsyncStorage).
+// Deep Ocean full bleed, "It's not your club." -> "It's your Canine Society."
+// -> wordmark. Shown once per install (AsyncStorage flag). Tap anywhere to
+// skip. A safety timeout finishes after 8 s no matter what.
 
 type Stage = 'pre' | 'msg1' | 'msg2' | 'logo' | 'done';
 
@@ -18,38 +18,50 @@ const LOGO_MS = 1000;
 
 export function BrandIntro({ onDone }: { onDone: () => void }) {
   const [stage, setStage] = useState<Stage>('pre');
+  const [shouldRun, setShouldRun] = useState(false);
+  const finished = useRef(false);
 
-  useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((seen) => {
-      if (seen === '1') {
-        setStage('done');
-        onDone();
-        return;
-      }
-      setStage('msg1');
-    });
-  }, [onDone]);
+  const finish = () => {
+    if (finished.current) return;
+    finished.current = true;
+    AsyncStorage.setItem(STORAGE_KEY, '1').catch(() => {});
+    setStage('done');
+    onDone();
+  };
 
+  // Decide: skip or run.
   useEffect(() => {
-    if (stage !== 'msg1') return;
+    AsyncStorage.getItem(STORAGE_KEY)
+      .then((seen) => {
+        if (seen === '1') finish();
+        else setShouldRun(true);
+      })
+      .catch(() => setShouldRun(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Schedule the timeline ONCE when shouldRun flips true. Cleanup only on
+  // unmount so a stage change does not cancel the next step.
+  useEffect(() => {
+    if (!shouldRun) return;
+    setStage('msg1');
     const t1 = setTimeout(() => setStage('msg2'), MSG1_MS + GAP_MS);
     const t2 = setTimeout(() => setStage('logo'), MSG1_MS + GAP_MS + MSG2_MS + GAP_MS);
-    const t3 = setTimeout(() => {
-      AsyncStorage.setItem(STORAGE_KEY, '1');
-      setStage('done');
-      onDone();
-    }, MSG1_MS + GAP_MS + MSG2_MS + GAP_MS + LOGO_MS);
+    const t3 = setTimeout(finish, MSG1_MS + GAP_MS + MSG2_MS + GAP_MS + LOGO_MS);
+    const safety = setTimeout(finish, 8000);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
+      clearTimeout(safety);
     };
-  }, [stage, onDone]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldRun]);
 
   if (stage === 'pre' || stage === 'done') return null;
 
   return (
-    <View style={styles.root} pointerEvents="none">
+    <Pressable style={styles.root} onPress={finish}>
       <FadeText visible={stage === 'msg1'}>
         <Text variant="headline" style={styles.tagline}>
           It’s not your club.
@@ -74,7 +86,7 @@ export function BrandIntro({ onDone }: { onDone: () => void }) {
           </Text>
         </View>
       </FadeText>
-    </View>
+    </Pressable>
   );
 }
 
