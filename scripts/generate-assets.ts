@@ -10,8 +10,8 @@ import sharp from 'sharp';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
-const SAND = '#FFFFFF';
-const CREAM = '#F2EDE4';
+const SAND = '#F3E8D4';
+const DESERT = '#D9AF83';
 const DEEP_OCEAN = '#172451';
 
 const ASSETS_DIR = path.join(process.cwd(), 'assets');
@@ -42,7 +42,7 @@ function splashSvg(width: number, height: number): string {
   const label = Math.min(width, height) * 0.024;
   return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <rect width="${width}" height="${height}" fill="${SAND}"/>
-    <rect x="0" y="${height * 0.6}" width="${width}" height="${height * 0.4}" fill="${CREAM}"/>
+    <rect x="0" y="${height * 0.6}" width="${width}" height="${height * 0.4}" fill="${DESERT}" opacity="0.18"/>
     <text x="50%" y="${height * 0.32}" text-anchor="middle"
       font-family="'DM Sans', 'Manrope', sans-serif"
       font-weight="500" font-size="${label}" letter-spacing="${label * 0.2}"

@@ -2,11 +2,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import {
-  useFonts,
-  BodoniModa_400Regular,
-  BodoniModa_400Regular_Italic,
-} from '@expo-google-fonts/bodoni-moda';
+import { useFonts } from 'expo-font';
 import { DMSans_400Regular, DMSans_500Medium } from '@expo-google-fonts/dm-sans';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
@@ -60,8 +56,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    BodoniModa_400Regular,
-    BodoniModa_400Regular_Italic,
+    TheSeasons_Regular: require('../assets/fonts/TheSeasons-Regular.ttf'),
     DMSans_400Regular,
     DMSans_500Medium,
   });

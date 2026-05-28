@@ -109,6 +109,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     maxWidth: width * 0.9,
   },
-  label: { color: colors.cream, opacity: 0.7 },
+  label: { color: colors.sand, opacity: 0.7 },
   wordmark: { color: colors.sand, textAlign: 'center' },
 });

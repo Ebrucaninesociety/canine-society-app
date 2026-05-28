@@ -26,8 +26,8 @@ export default function UnderReview() {
 }
 
 const styles = StyleSheet.create({
-  // Cream surface, the editorial 'paused' state — paper-on-paper with the
-  // base layer (white) below.
-  root: { flex: 1, backgroundColor: colors.cream },
+  // The 'One Water Rule' moment per the brand book — pale blue used at
+  // most once per long session for the chapter-turn feeling.
+  root: { flex: 1, backgroundColor: colors.water },
   body: { flex: 1, padding: spacing.md, justifyContent: 'center' },
 });
