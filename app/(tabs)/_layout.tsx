@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import { View } from 'react-native';
 import { Text } from '../../components/Text';
 import { colors, spacing } from '../../design';
+import { useMatchListener } from '../../lib/matchListener';
 
 function TabLabel({ numeral, label, focused }: { numeral: string; label: string; focused: boolean }) {
   return (
@@ -20,6 +21,7 @@ function TabLabel({ numeral, label, focused }: { numeral: string; label: string;
 }
 
 export default function TabsLayout() {
+  useMatchListener();
   return (
     <Tabs
       screenOptions={{
