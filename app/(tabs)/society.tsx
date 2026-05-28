@@ -10,10 +10,7 @@ import { useMe } from '../../lib/me';
 import { signedPhotoUrl } from '../../lib/photos';
 import { signOut } from '../../lib/auth';
 
-// Replace with the production URL of the admin web (Vercel deploy of admin/).
-// Until you have one, the in-app links 404. They are only required for
-// App Store / Play Store submission.
-const LEGAL_BASE = 'https://canine-society.com';
+const LEGAL_BASE = 'https://caninesocietyapp.vercel.app';
 
 function ageOf(birthdate: string): number {
   return Math.floor((Date.now() - new Date(birthdate).getTime()) / (1000 * 60 * 60 * 24 * 365.25));
