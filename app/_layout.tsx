@@ -1,19 +1,34 @@
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useFonts, BodoniModa_400Regular, BodoniModa_400Regular_Italic } from '@expo-google-fonts/bodoni-moda';
+import { StatusBar } from 'expo-status-bar';
+import {
+  useFonts,
+  BodoniModa_400Regular,
+  BodoniModa_400Regular_Italic,
+} from '@expo-google-fonts/bodoni-moda';
 import { DMSans_400Regular, DMSans_500Medium } from '@expo-google-fonts/dm-sans';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import { colors } from '../design';
 import { SessionProvider, useSession } from '../lib/session';
 import { useProfileStatus } from '../lib/useProfileStatus';
+import { useOnboarding } from '../lib/onboarding';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+import { ToastProvider } from '../components/Toast';
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { session, loading } = useSession();
   const status = useProfileStatus();
   const segments = useSegments();
   const router = useRouter();
+  const resetOnboarding = useOnboarding((s) => s.reset);
+
+  // Reset Zustand onboarding state when the session goes to null so a
+  // fresh signup does not see stale data.
+  useEffect(() => {
+    if (!session) resetOnboarding();
+  }, [session, resetOnboarding]);
 
   useEffect(() => {
     if (loading) return;
@@ -28,9 +43,6 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     }
     if (status === 'loading') return;
 
-    // Each branch only redirects AWAY from blocked routes for that status.
-    // Allowed in-app routes (tabs, /profile, /chat, /match, /settings) are
-    // implicit — the gate stays out of their way.
     if (status === 'none') {
       if (!inOnboarding) router.replace('/onboarding');
     } else if (status === 'pending') {
@@ -60,20 +72,25 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <SessionProvider>
-          <AuthGate>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: colors.sand },
-                animation: 'fade',
-              }}
-            />
-          </AuthGate>
-        </SessionProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <ErrorBoundary>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <StatusBar style="dark" backgroundColor={colors.sand} />
+          <SessionProvider>
+            <ToastProvider>
+              <AuthGate>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: colors.sand },
+                    animation: 'fade',
+                  }}
+                />
+              </AuthGate>
+            </ToastProvider>
+          </SessionProvider>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }

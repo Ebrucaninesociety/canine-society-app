@@ -24,12 +24,14 @@ import { blockUser } from '../../lib/block';
 import { unmatch } from '../../lib/match';
 import { Text } from '../../components/Text';
 import { HairlineRule } from '../../components/HairlineRule';
+import { useToast } from '../../components/Toast';
 import { colors, spacing, typography } from '../../design';
 
 export default function Chat() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
   const { session } = useSession();
   const router = useRouter();
+  const toast = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState('');
   const [otherName, setOtherName] = useState('');
@@ -107,6 +109,7 @@ export default function Chat() {
               onPress: async () => {
                 try {
                   await unmatch(matchId);
+                  toast.show('Unmatched');
                   router.replace('/(tabs)/matches');
                 } catch (e) {
                   const err = e as { message?: string };
@@ -130,6 +133,7 @@ export default function Chat() {
               onPress: async () => {
                 try {
                   await blockUser(otherId);
+                  toast.show(`Blocked ${otherName}`);
                   router.replace('/(tabs)/matches');
                 } catch (e) {
                   const err = e as { message?: string };

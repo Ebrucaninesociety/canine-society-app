@@ -1,4 +1,5 @@
-import { Image, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Image } from './Image';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,

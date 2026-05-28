@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, View, Image, StyleSheet, Pressable, Alert } from 'react-native';
+import { ScrollView, View, StyleSheet, Pressable, Alert } from 'react-native';
+import { Image } from '../../components/Image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {

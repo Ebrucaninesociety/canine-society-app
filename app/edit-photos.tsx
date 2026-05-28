@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, StyleSheet, Image, Pressable, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView, Alert } from 'react-native';
+import { Image } from '../components/Image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
