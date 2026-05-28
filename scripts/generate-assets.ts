@@ -23,13 +23,13 @@ function iconSvg(size: number): string {
     <rect width="${size}" height="${size}" fill="${SAND}"/>
     <rect x="${size * 0.06}" y="${size * 0.06}" width="${size * 0.88}" height="${size * 0.88}" fill="none" stroke="${DEEP_OCEAN}" stroke-width="${size * 0.006}" opacity="0.1"/>
     <text x="50%" y="${size * 0.5}" dominant-baseline="middle" text-anchor="middle"
-      font-family="'Baskervville', 'Georgia', 'Times New Roman', serif"
+      font-family="'The Seasons', 'Bodoni Moda', 'Georgia', 'Times New Roman', serif"
       font-weight="400" font-size="${fontSize}"
       fill="${DEEP_OCEAN}">
       CS
     </text>
     <text x="50%" y="${size * 0.83}" text-anchor="middle"
-      font-family="'Manrope', 'Helvetica Neue', sans-serif"
+      font-family="'DM Sans', 'Helvetica Neue', sans-serif"
       font-weight="500" font-size="${labelSize}" letter-spacing="${labelSize * 0.18}"
       fill="${DEEP_OCEAN}">
       ROMA · DACH
@@ -44,25 +44,25 @@ function splashSvg(width: number, height: number): string {
     <rect width="${width}" height="${height}" fill="${SAND}"/>
     <rect x="0" y="${height * 0.6}" width="${width}" height="${height * 0.4}" fill="${CREAM}"/>
     <text x="50%" y="${height * 0.32}" text-anchor="middle"
-      font-family="'Manrope', sans-serif"
+      font-family="'DM Sans', 'Manrope', sans-serif"
       font-weight="500" font-size="${label}" letter-spacing="${label * 0.2}"
       fill="${DEEP_OCEAN}">
       ROMA · DACH · ISSUE I
     </text>
     <text x="50%" y="${height * 0.46}" text-anchor="middle"
-      font-family="'Baskervville', 'Georgia', serif"
+      font-family="'The Seasons', 'Bodoni Moda', 'Georgia', serif"
       font-weight="400" font-size="${display}"
       fill="${DEEP_OCEAN}">
       CANINE
     </text>
     <text x="50%" y="${height * 0.54}" text-anchor="middle"
-      font-family="'Baskervville', 'Georgia', serif"
+      font-family="'The Seasons', 'Bodoni Moda', 'Georgia', serif"
       font-weight="400" font-size="${display}"
       fill="${DEEP_OCEAN}">
       SOCIETY
     </text>
     <text x="50%" y="${height * 0.78}" text-anchor="middle"
-      font-family="'Baskervville', 'Georgia', serif"
+      font-family="'The Seasons', 'Bodoni Moda', 'Georgia', serif"
       font-weight="400" font-style="italic" font-size="${label * 1.8}"
       fill="${DEEP_OCEAN}" opacity="0.7">
       It is your Canine Society.

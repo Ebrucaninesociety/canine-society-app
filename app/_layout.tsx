@@ -2,8 +2,12 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import { useFonts, Baskervville_400Regular, Baskervville_400Regular_Italic } from '@expo-google-fonts/baskervville';
-import { Manrope_400Regular, Manrope_500Medium } from '@expo-google-fonts/manrope';
+import {
+  useFonts,
+  BodoniModa_400Regular,
+  BodoniModa_400Regular_Italic,
+} from '@expo-google-fonts/bodoni-moda';
+import { DMSans_400Regular, DMSans_500Medium } from '@expo-google-fonts/dm-sans';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { colors } from '../design';
@@ -56,10 +60,10 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    Baskervville_400Regular,
-    Baskervville_400Regular_Italic,
-    Manrope_400Regular,
-    Manrope_500Medium,
+    BodoniModa_400Regular,
+    BodoniModa_400Regular_Italic,
+    DMSans_400Regular,
+    DMSans_500Medium,
   });
   const [introDone, setIntroDone] = useState(false);
 
