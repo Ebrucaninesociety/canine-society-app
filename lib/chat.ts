@@ -31,8 +31,11 @@ export async function sendMessage(matchId: string, body: string): Promise<void> 
 }
 
 export function subscribeMessages(matchId: string, onMessage: (msg: Message) => void): () => void {
+  // Unique suffix avoids "cannot add callbacks after subscribe()" when React
+  // StrictMode double-runs the effect in dev.
+  const channelName = `chat-${matchId}-${Math.random().toString(36).slice(2, 8)}`;
   const ch = supabase
-    .channel(`chat-${matchId}`)
+    .channel(channelName)
     .on(
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'messages', filter: `match_id=eq.${matchId}` },

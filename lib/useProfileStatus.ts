@@ -7,9 +7,10 @@ export type ProfileStatus = 'loading' | 'none' | 'pending' | 'approved' | 'rejec
 export function useProfileStatus(): ProfileStatus {
   const { session } = useSession();
   const [status, setStatus] = useState<ProfileStatus>('loading');
+  const userId = session?.user?.id;
 
   useEffect(() => {
-    if (!session?.user) {
+    if (!userId) {
       setStatus('none');
       return;
     }
@@ -17,18 +18,19 @@ export function useProfileStatus(): ProfileStatus {
     supabase
       .from('profiles')
       .select('verification_status')
-      .eq('id', session.user.id)
+      .eq('id', userId)
       .maybeSingle()
       .then(({ data }) => {
         if (!alive) return;
         setStatus(data ? (data.verification_status as ProfileStatus) : 'none');
       });
 
+    const channelName = `profile-status-${userId}-${Math.random().toString(36).slice(2, 8)}`;
     const ch = supabase
-      .channel(`profile-status-${session.user.id}`)
+      .channel(channelName)
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${session.user.id}` },
+        { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${userId}` },
         (payload: { new: { verification_status: ProfileStatus } }) => {
           if (alive) setStatus(payload.new.verification_status);
         },
@@ -39,7 +41,7 @@ export function useProfileStatus(): ProfileStatus {
       alive = false;
       supabase.removeChannel(ch);
     };
-  }, [session]);
+  }, [userId]);
 
   return status;
 }
