@@ -271,7 +271,14 @@ USING (bucket_id = 'profile-photos' AND EXISTS (SELECT 1 FROM profiles p WHERE p
 CREATE POLICY "users delete own photos" ON storage.objects FOR DELETE TO authenticated
 USING (bucket_id = 'profile-photos' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+-- ----- Realtime publication -----
+-- Subscribe-able tables for the mobile client.
+ALTER PUBLICATION supabase_realtime ADD TABLE messages;
+ALTER PUBLICATION supabase_realtime ADD TABLE matches;
+ALTER PUBLICATION supabase_realtime ADD TABLE profiles;
+
 -- =============================================================
--- End of bundle. After running, you should have 9 tables, 1 view,
--- 1 storage bucket, and a deck/match trigger system in place.
+-- End of bundle. After running, you should have 9 tables,
+-- a storage bucket, the deck/match trigger system, and realtime
+-- broadcasting on messages, matches, and profiles.
 -- =============================================================

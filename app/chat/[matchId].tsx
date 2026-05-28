@@ -34,13 +34,16 @@ export default function Chat() {
 
   useEffect(() => {
     if (!matchId || !session?.user) return;
+    const me = session.user.id;
     let unsub: (() => void) | null = null;
     (async () => {
       const initial = await fetchMessages(matchId);
       setMessages(initial);
       await markRead(matchId);
       unsub = subscribeMessages(matchId, (m) => {
-        setMessages((prev) => [...prev, m]);
+        // Skip own messages — already added optimistically by send().
+        if (m.sender_id === me) return;
+        setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]));
       });
       // Resolve the other party's name for the header.
       const { data: match } = await supabase
@@ -49,8 +52,7 @@ export default function Chat() {
         .eq('id', matchId)
         .maybeSingle();
       if (!match) return;
-      const otherId =
-        match.profile_a_id === session.user.id ? match.profile_b_id : match.profile_a_id;
+      const otherId = match.profile_a_id === me ? match.profile_b_id : match.profile_a_id;
       const { data: profile } = await supabase
         .from('profiles')
         .select('display_name')
@@ -64,13 +66,28 @@ export default function Chat() {
   }, [matchId, session]);
 
   const send = async () => {
-    if (!matchId || !text.trim()) return;
+    if (!matchId || !text.trim() || !session?.user) return;
     const body = text.trim();
     setText('');
+    // Optimistic insert — show the message immediately. If the DB write
+    // fails we drop it back. Realtime callback skips own messages so this
+    // does not duplicate.
+    const tempId = `temp-${Date.now()}`;
+    const optimistic: Message = {
+      id: tempId,
+      match_id: matchId,
+      sender_id: session.user.id,
+      body,
+      read_at: null,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimistic]);
     try {
       await sendMessage(matchId, body);
     } catch (e) {
       console.warn('send failed', e);
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setText(body); // restore the input so the user can retry
     }
   };
 
