@@ -26,6 +26,8 @@ export default function UnderReview() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.water },
+  // Cream surface, the editorial 'paused' state — paper-on-paper with the
+  // base layer (white) below.
+  root: { flex: 1, backgroundColor: colors.cream },
   body: { flex: 1, padding: spacing.md, justifyContent: 'center' },
 });

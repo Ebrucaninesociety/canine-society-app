@@ -2,13 +2,9 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import {
-  useFonts,
-  BodoniModa_400Regular,
-  BodoniModa_400Regular_Italic,
-} from '@expo-google-fonts/bodoni-moda';
-import { DMSans_400Regular, DMSans_500Medium } from '@expo-google-fonts/dm-sans';
-import { useEffect } from 'react';
+import { useFonts, Baskervville_400Regular, Baskervville_400Regular_Italic } from '@expo-google-fonts/baskervville';
+import { Manrope_400Regular, Manrope_500Medium } from '@expo-google-fonts/manrope';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { colors } from '../design';
 import { SessionProvider, useSession } from '../lib/session';
@@ -16,6 +12,7 @@ import { useProfileStatus } from '../lib/useProfileStatus';
 import { useOnboarding } from '../lib/onboarding';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ToastProvider } from '../components/Toast';
+import { BrandIntro } from '../components/BrandIntro';
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { session, loading } = useSession();
@@ -24,8 +21,6 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const resetOnboarding = useOnboarding((s) => s.reset);
 
-  // Reset Zustand onboarding state when the session goes to null so a
-  // fresh signup does not see stale data.
   useEffect(() => {
     if (!session) resetOnboarding();
   }, [session, resetOnboarding]);
@@ -61,11 +56,12 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    BodoniModa_400Regular,
-    BodoniModa_400Regular_Italic,
-    DMSans_400Regular,
-    DMSans_500Medium,
+    Baskervville_400Regular,
+    Baskervville_400Regular_Italic,
+    Manrope_400Regular,
+    Manrope_500Medium,
   });
+  const [introDone, setIntroDone] = useState(false);
 
   if (!loaded) {
     return <View style={{ flex: 1, backgroundColor: colors.sand }} />;
@@ -87,6 +83,7 @@ export default function RootLayout() {
                   }}
                 />
               </AuthGate>
+              {!introDone && <BrandIntro onDone={() => setIntroDone(true)} />}
             </ToastProvider>
           </SessionProvider>
         </SafeAreaProvider>

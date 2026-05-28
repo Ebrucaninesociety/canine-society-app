@@ -1,39 +1,35 @@
 /**
  * Generate Expo's required asset PNGs from a single SVG source.
+ * Matches the production website at caninesociety.com: white surface,
+ * Baskervville serif wordmark, deep-ocean ink.
  *
- * Outputs to ./assets/:
- *   - icon.png            1024x1024  (iOS app icon)
- *   - adaptive-icon.png   1024x1024  (Android adaptive icon foreground)
- *   - splash.png          1242x2436  (Splash screen background image)
- *   - favicon.png         48x48      (Web favicon if we ever ship web)
- *
- * Run: npx tsx scripts/generate-assets.ts
+ * Run: npm run assets:generate
  */
 
 import sharp from 'sharp';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
-const SAND = '#F3E8D4';
+const SAND = '#FFFFFF';
+const CREAM = '#F2EDE4';
 const DEEP_OCEAN = '#172451';
 
 const ASSETS_DIR = path.join(process.cwd(), 'assets');
 
-// Icon: solid Sand with a centred Bodoni-style "C·S" mark in Deep Ocean.
-// No rounded corners. iOS will apply its system mask; Android shows raw.
 function iconSvg(size: number): string {
-  const fontSize = size * 0.42;
-  const labelSize = size * 0.07;
+  const fontSize = size * 0.36;
+  const labelSize = size * 0.058;
   return `<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
     <rect width="${size}" height="${size}" fill="${SAND}"/>
-    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
-      font-family="'Bodoni Moda', 'Bodoni 72', 'Didot', 'Times New Roman', serif"
+    <rect x="${size * 0.06}" y="${size * 0.06}" width="${size * 0.88}" height="${size * 0.88}" fill="none" stroke="${DEEP_OCEAN}" stroke-width="${size * 0.006}" opacity="0.1"/>
+    <text x="50%" y="${size * 0.5}" dominant-baseline="middle" text-anchor="middle"
+      font-family="'Baskervville', 'Georgia', 'Times New Roman', serif"
       font-weight="400" font-size="${fontSize}"
       fill="${DEEP_OCEAN}">
       CS
     </text>
-    <text x="50%" y="${size * 0.84}" text-anchor="middle"
-      font-family="'DM Sans', 'Helvetica Neue', sans-serif"
+    <text x="50%" y="${size * 0.83}" text-anchor="middle"
+      font-family="'Manrope', 'Helvetica Neue', sans-serif"
       font-weight="500" font-size="${labelSize}" letter-spacing="${labelSize * 0.18}"
       fill="${DEEP_OCEAN}">
       ROMA · DACH
@@ -41,29 +37,35 @@ function iconSvg(size: number): string {
   </svg>`;
 }
 
-// Splash: same mark, taller canvas, wordmark on two lines.
 function splashSvg(width: number, height: number): string {
-  const display = Math.min(width, height) * 0.16;
-  const label = Math.min(width, height) * 0.025;
+  const display = Math.min(width, height) * 0.14;
+  const label = Math.min(width, height) * 0.024;
   return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <rect width="${width}" height="${height}" fill="${SAND}"/>
+    <rect x="0" y="${height * 0.6}" width="${width}" height="${height * 0.4}" fill="${CREAM}"/>
     <text x="50%" y="${height * 0.32}" text-anchor="middle"
-      font-family="'DM Sans', sans-serif"
-      font-weight="500" font-size="${label}" letter-spacing="${label * 0.22}"
+      font-family="'Manrope', sans-serif"
+      font-weight="500" font-size="${label}" letter-spacing="${label * 0.2}"
       fill="${DEEP_OCEAN}">
-      ROMA · DACH
+      ROMA · DACH · ISSUE I
     </text>
     <text x="50%" y="${height * 0.46}" text-anchor="middle"
-      font-family="'Bodoni Moda', 'Didot', 'Times New Roman', serif"
+      font-family="'Baskervville', 'Georgia', serif"
       font-weight="400" font-size="${display}"
       fill="${DEEP_OCEAN}">
       CANINE
     </text>
     <text x="50%" y="${height * 0.54}" text-anchor="middle"
-      font-family="'Bodoni Moda', 'Didot', 'Times New Roman', serif"
+      font-family="'Baskervville', 'Georgia', serif"
       font-weight="400" font-size="${display}"
       fill="${DEEP_OCEAN}">
       SOCIETY
+    </text>
+    <text x="50%" y="${height * 0.78}" text-anchor="middle"
+      font-family="'Baskervville', 'Georgia', serif"
+      font-weight="400" font-style="italic" font-size="${label * 1.8}"
+      fill="${DEEP_OCEAN}" opacity="0.7">
+      It is your Canine Society.
     </text>
   </svg>`;
 }
