@@ -14,7 +14,7 @@ type Row = {
 };
 
 async function loadQueue(): Promise<Row[]> {
-  const { data: profiles } = await supabaseAdmin
+  const { data: profiles } = await supabaseAdmin()
     .from('profiles')
     .select('id, display_name, birthdate, city, country, created_at')
     .eq('verification_status', 'pending')
@@ -25,7 +25,7 @@ async function loadQueue(): Promise<Row[]> {
   if (!profiles) return [];
 
   const ids = profiles.map((p) => p.id);
-  const { data: photos } = await supabaseAdmin
+  const { data: photos } = await supabaseAdmin()
     .from('photos')
     .select('profile_id, storage_path')
     .in('profile_id', ids)
@@ -47,7 +47,7 @@ function ageOf(birthdate: string): number {
 
 async function signedUrlOrNull(path: string | null): Promise<string | null> {
   if (!path) return null;
-  const { data } = await supabaseAdmin.storage.from('profile-photos').createSignedUrl(path, 60 * 60);
+  const { data } = await supabaseAdmin().storage.from('profile-photos').createSignedUrl(path, 60 * 60);
   return data?.signedUrl ?? null;
 }
 

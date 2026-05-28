@@ -9,7 +9,8 @@ export async function POST(req: Request) {
   const { profileId, note } = (await req.json()) as { profileId: string; note: string };
   if (!profileId || !note) return new NextResponse('profileId and note required', { status: 400 });
 
-  const { error } = await supabaseAdmin
+  const sb = supabaseAdmin();
+  const { error } = await sb
     .from('profiles')
     .update({
       verification_status: 'rejected', // user routes to /rejected and can resubmit
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
     .eq('id', profileId);
   if (error) return new NextResponse(error.message, { status: 500 });
 
-  await supabaseAdmin.functions
+  await sb.functions
     .invoke('notify-decision', { body: { profileId, decision: 'revision_requested', note } })
     .catch(() => {});
 

@@ -5,17 +5,18 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { Actions } from './Actions';
 
 async function loadProfile(id: string) {
+  const sb = supabaseAdmin();
   const [{ data: profile }, { data: dogs }, { data: photos }] = await Promise.all([
-    supabaseAdmin.from('profiles').select('*').eq('id', id).maybeSingle(),
-    supabaseAdmin.from('dogs').select('*').eq('owner_id', id),
-    supabaseAdmin.from('photos').select('*').eq('profile_id', id).order('position'),
+    sb.from('profiles').select('*').eq('id', id).maybeSingle(),
+    sb.from('dogs').select('*').eq('owner_id', id),
+    sb.from('photos').select('*').eq('profile_id', id).order('position'),
   ]);
 
   if (!profile) return null;
 
   const signedPhotos = await Promise.all(
     (photos ?? []).map(async (p: { id: string; storage_path: string; is_dog_photo: boolean }) => {
-      const { data } = await supabaseAdmin.storage
+      const { data } = await sb.storage
         .from('profile-photos')
         .createSignedUrl(p.storage_path, 60 * 60);
       return { ...p, url: data?.signedUrl ?? null };

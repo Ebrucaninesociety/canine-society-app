@@ -13,7 +13,8 @@ export async function POST(req: Request) {
   };
   if (!profileId || !reason) return new NextResponse('profileId and reason required', { status: 400 });
 
-  const { error } = await supabaseAdmin
+  const sb = supabaseAdmin();
+  const { error } = await sb
     .from('profiles')
     .update({
       verification_status: 'rejected',
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
     .eq('id', profileId);
   if (error) return new NextResponse(error.message, { status: 500 });
 
-  await supabaseAdmin.functions
+  await sb.functions
     .invoke('notify-decision', { body: { profileId, decision: 'rejected', reason, note } })
     .catch(() => {});
 

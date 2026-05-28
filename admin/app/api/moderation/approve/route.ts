@@ -9,7 +9,8 @@ export async function POST(req: Request) {
   const { profileId } = (await req.json()) as { profileId: string };
   if (!profileId) return new NextResponse('profileId required', { status: 400 });
 
-  const { error } = await supabaseAdmin
+  const sb = supabaseAdmin();
+  const { error } = await sb
     .from('profiles')
     .update({
       verification_status: 'approved',
@@ -20,10 +21,10 @@ export async function POST(req: Request) {
     .eq('id', profileId);
   if (error) return new NextResponse(error.message, { status: 500 });
 
-  await supabaseAdmin.from('photos').update({ verification_status: 'approved' }).eq('profile_id', profileId);
+  await sb.from('photos').update({ verification_status: 'approved' }).eq('profile_id', profileId);
 
   // Fire-and-forget decision email
-  await supabaseAdmin.functions.invoke('notify-decision', { body: { profileId, decision: 'approved' } }).catch(() => {});
+  await sb.functions.invoke('notify-decision', { body: { profileId, decision: 'approved' } }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 }
