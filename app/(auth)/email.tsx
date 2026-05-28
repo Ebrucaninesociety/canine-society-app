@@ -5,19 +5,22 @@ import { Text } from '../../components/Text';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { colors, spacing } from '../../design';
-import { signInWithEmail } from '../../lib/auth';
+import { signInWithEmail, signInWithEmailOtp } from '../../lib/auth';
+
+type Step = 'email' | 'code';
 
 export default function EmailEntry() {
+  const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
-  const [sent, setSent] = useState(false);
+  const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const submit = async () => {
+  const sendCode = async () => {
     if (busy) return;
     setBusy(true);
     try {
       await signInWithEmail(email.trim());
-      setSent(true);
+      setStep('code');
     } catch (error) {
       const e = error as { message?: string };
       Alert.alert('Could not send', e.message ?? 'Unknown error');
@@ -26,15 +29,46 @@ export default function EmailEntry() {
     }
   };
 
-  if (sent) {
+  const verify = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await signInWithEmailOtp(email.trim(), code.trim());
+    } catch (error) {
+      const e = error as { message?: string };
+      Alert.alert('Wrong code', e.message ?? 'Try again, or request a new code.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (step === 'code') {
     return (
       <SafeAreaView style={styles.root}>
         <View style={styles.body}>
-          <Text variant="label">I</Text>
+          <Text variant="label">II</Text>
           <View style={{ height: spacing.sm }} />
-          <Text variant="headline">Check your inbox</Text>
+          <Text variant="headline">Enter the code</Text>
           <View style={{ height: spacing.md }} />
-          <Text>We sent a link to {email}. Tap it to continue.</Text>
+          <Text>We sent a six-digit code to {email}. It may take a minute to arrive.</Text>
+          <View style={{ height: spacing.md }} />
+          <Input
+            placeholder="000000"
+            keyboardType="number-pad"
+            value={code}
+            onChangeText={setCode}
+            maxLength={6}
+            autoFocus
+            style={{ fontSize: 28, letterSpacing: 8, textAlign: 'center' }}
+          />
+          <View style={{ height: spacing.md }} />
+          <Button onPress={verify} disabled={busy || code.length !== 6}>
+            {busy ? 'Verifying...' : 'Verify'}
+          </Button>
+          <View style={{ height: spacing.sm }} />
+          <Button variant="ghost" onPress={() => setStep('email')}>
+            Use a different email
+          </Button>
         </View>
       </SafeAreaView>
     );
@@ -51,12 +85,13 @@ export default function EmailEntry() {
           placeholder="you@example.com"
           keyboardType="email-address"
           autoCapitalize="none"
+          autoCorrect={false}
           value={email}
           onChangeText={setEmail}
         />
         <View style={{ height: spacing.md }} />
-        <Button onPress={submit} disabled={busy || email.length < 5}>
-          {busy ? 'Sending...' : 'Send Link'}
+        <Button onPress={sendCode} disabled={busy || email.length < 5}>
+          {busy ? 'Sending...' : 'Send Code'}
         </Button>
       </View>
     </SafeAreaView>
